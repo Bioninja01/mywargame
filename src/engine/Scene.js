@@ -18,9 +18,9 @@ export class Scene {
     })
   }
 
-  update(delta, input) {
+  update(delta) {
     for (const e of this.entities) {
-      e.update(delta, input)
+      e.update(delta)
     }
     this.dragController.handleDragging()
     // this.clickController.handleClick()

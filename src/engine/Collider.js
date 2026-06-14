@@ -1,5 +1,7 @@
 import { fastCosTaylor, fastSinTaylor, pointInTriangle } from './Utils'
 
+import { drawTriangle } from './utils/Draw'
+
 class Collider {
   constructor(entity) {
     this.entity = entity
@@ -41,7 +43,6 @@ export class BoxCollider extends Collider {
   getVertices() {
     return getVerticesAtPoint()
   }
-
   containsPoint(p) {
     const { x, y } = { ...this.entity.postion }
     return (
@@ -51,16 +52,14 @@ export class BoxCollider extends Collider {
       p.y <= y + this.height / 2
     )
   }
-
   render(ctx) {
     ctx.save()
     // Move origin to entity center
     ctx.translate(this.entity.postion.x, this.entity.postion.y)
     // Rotate around center
     ctx.rotate(this.entity.angle)
-
     // Draw rectangle centered
-    ctx.fillStyle = 'lightblue'
+    ctx.fillStyle = 'yellow'
     ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height)
     ctx.strokeStyle = 'black'
     ctx.lineWidth = 2
@@ -92,7 +91,6 @@ export class CircleCollider extends Collider {
     const squaredRadius = this.radius * this.radius
     return squaredDistance <= squaredRadius
   }
-
   getVerticesAtPoint(p = this.entity.postion) {
     const verts = []
     const { x, y } = { ...p }
@@ -105,7 +103,6 @@ export class CircleCollider extends Collider {
   getVertices() {
     return getVerticesAtPoint()
   }
-
   render(ctx) {
     ctx.save()
     // Move origin to entity center
@@ -135,5 +132,32 @@ export class TriangleCollider extends Collider {
   containsPoint(p) {
     const [a, b, c] = this.getVertices()
     return pointInTriangle(p.x, p.y, a.x, a.y, b.x, b.y, c.x, c.y)
+  }
+  render(ctx) {
+    const [p1, p2, p3] = [...this.localVertices]
+
+    drawTriangle(
+      ctx,
+      this.entity.angle,
+      this.entity.postion.x,
+      this.entity.postion.y,
+      0,
+      0,
+      170,
+      170,
+      170,
+      -170
+    )
+
+    // drawTriangle(
+    //   ctx,
+    //   this.entity.angle,
+    //   this.entity.postion.x,
+    //   this.entity.postion.y,
+    //   p2.x,
+    //   p2.y,
+    //   p3.x,
+    //   p3.y
+    // )
   }
 }

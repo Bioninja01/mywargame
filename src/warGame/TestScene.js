@@ -9,77 +9,41 @@ import { getWorldCoordinatesPointer } from '../engine/Utils.js'
 import { distanceSq, getPointAtDistance, getAngle } from '../engine/Utils.js'
 
 import { drawCone, drawTriangle } from '../engine/utils/Draw.js'
-import { BoxCollider, CircleCollider } from '../engine/Collider.js'
-
-class EntityController {
-  constructor(boxEntity) {
-    const { x, y, radius } = { ...boxEntity }
-    this.layer = 0
-    this.color = 'yellow'
-    this.boxEntity = boxEntity
-    this.collider = new CircleCollider(boxEntity, radius)
-    this.collider.trigger = true
-    this.oldPostion = {
-      x,
-      y
-    }
-  }
-  get postion() {
-    return this.boxEntity.postion
-  }
-  update() {}
-
-  render(ctx) {
-    if (this.collider) {
-      ctx.save()
-      // Move origin to entity center
-      ctx.translate(this.oldPostion.x, this.oldPostion.y)
-
-      ctx.beginPath()
-      ctx.arc(0, 0, this.collider.radius, 0, 2 * Math.PI)
-      ctx.strokeStyle = 'lightblue'
-      ctx.stroke() // Draw the outlin
-
-      ctx.restore()
-
-      // this.collider.render(ctx)
-    }
-  }
-
-  onDrag(event) {
-    const { targetX, targetY, worldX, worldY } = { ...event }
-    const angle = getAngle(this.boxEntity.postion.x, this.boxEntity.postion.y, worldX, worldY)
-    this.boxEntity.angle = angle
-    this.angle = angle
-  }
-  onDragEnd(event) {
-    console.log('This is a dragend')
-    this.oldPostion = {...this.boxEntity.postion}
-  }
-}
+import { BoxCollider, CircleCollider, TriangleCollider } from '../engine/Collider.js'
 
 class BoxEntity extends Entity {
   constructor(x, y, width, height, color) {
     super(x, y, 100)
     this.health = 100
     this.color = color
+    this.width = width
+    this.height = height
+    this.health = 100
     this.img = new Image()
     this.img.src = Lan
-    this.collider = new BoxCollider(this, width, height)
+    const c = new CircleCollider(this, this.radius)
+    c.trigger = true
+    const b = new BoxCollider(this, width, height)
+    const p2 = { x: this.postion.x + 40, y: this.postion.y + 40 }
+    const p3 = { x: p2.x + 250, y: p2.y + 250 }
+    const t = new TriangleCollider(this, this.postion, p2, p3)
+    this.colliders = [c, b, t]
+    this.dragOffset = {
+      x: 0,
+      y: 0
+    }
   }
 
   render(ctx) {
     super.render(ctx)
-    // ctx.beginPath()
-    // ctx.arc(this.oldPostion.x, this.oldPostion.y, this.radius, 0, 2 * Math.PI)
-    // ctx.strokeStyle = 'lightblue'
-    // ctx.stroke() // Draw the outlin
+    ctx.beginPath()
+    ctx.arc(this.oldPostion.x, this.oldPostion.y, this.radius, 0, 2 * Math.PI)
+    ctx.strokeStyle = 'lightblue'
+    ctx.stroke() // Draw the outlin
 
-    const p2 = { x: this.x + 40, y: this.y + 40 }
-    const p3 = { x: p2.x + 250, y: p2.y + 250 }
-    drawTriangle(ctx, this.angle, this.postion.x, this.postion.y, 0, 0, 170, 170, 170, -170)
-
-    super.render(ctx)
+    // const p2 = { x: this.x + 40, y: this.y + 40 }
+    // const p3 = { x: p2.x + 250, y: p2.y + 250 }
+    // drawTriangle(ctx, this.angle, this.postion.x, this.postion.y, 0, 0, 170, 170, 170, -170)
 
     // Draw image centered
     if (this.img.complete) {
@@ -127,6 +91,90 @@ class BoxEntity extends Entity {
       ctx.restore()
     }
   }
+
+  onClick(event) {
+    const { dragStart, worldPoint, collider } = { ...event }
+    switch (collider) {
+      case this.colliders[0]: {
+        const angle = getAngle(this.postion.x, this.postion.y, worldPoint.x, worldPoint.y)
+        this.angle = angle
+        break
+      }
+      case this.colliders[1]: {
+        const target = {
+          x: worldPoint.x - this.dragOffset.x,
+          y: worldPoint.y - this.dragOffset.y
+        }
+        const radiusSq = this.radius * this.radius
+        const distSq = distanceSq(dragStart.x, dragStart.y, target.x, target.y)
+        // Clamp movement radius
+        if (distSq > radiusSq) {
+          const newPoint = getPointAtDistance(
+            dragStart.x,
+            dragStart.y,
+            target.x,
+            target.y,
+            this.radius
+          )
+          this.postion.x = newPoint.x
+          this.postion.y = newPoint.y
+        } else {
+          this.postion.x = target.x
+          this.postion.y = target.y
+        }
+        break
+      }
+    }
+  }
+  onDragEnd(event) {
+    console.log('This is a dragend')
+    this.oldPostion = { ...this.postion }
+  }
+
+  onDragStart(event) {
+    this.dragOffset = {
+      x: event.worldPoint.x - this.postion.x,
+      y: event.worldPoint.y - this.postion.y
+    }
+  }
+  onDrag(event) {
+    const { dragStart, worldPoint, collider } = { ...event }
+    switch (collider) {
+      case this.colliders[0]: {
+        const angle = getAngle(this.postion.x, this.postion.y, worldPoint.x, worldPoint.y)
+        this.angle = angle
+        break
+      }
+      case this.colliders[1]: {
+        const target = {
+          x: worldPoint.x - this.dragOffset.x,
+          y: worldPoint.y - this.dragOffset.y
+        }
+        const radiusSq = this.radius * this.radius
+        const distSq = distanceSq(dragStart.x, dragStart.y, target.x, target.y)
+        // Clamp movement radius
+        if (distSq > radiusSq) {
+          const newPoint = getPointAtDistance(
+            dragStart.x,
+            dragStart.y,
+            target.x,
+            target.y,
+            this.radius
+          )
+          this.postion.x = newPoint.x
+          this.postion.y = newPoint.y
+        } else {
+          this.postion.x = target.x
+          this.postion.y = target.y
+        }
+        break
+      }
+    }
+  }
+  onDragEnd(event) {
+    console.log('This is a dragend')
+    this.oldPostion = { ...this.postion }
+  }
 }
 
 export class TestScene extends Scene {
@@ -141,12 +189,12 @@ export class TestScene extends Scene {
     this.camera.y = -100
 
     const red = new BoxEntity(100, 100, 50, 50, 'red')
-    const gizmo = new EntityController(red)
+    // const gizmo = new EntityController(red)
 
     // // this.gizmos.push(gizmo)
     this.entities.push(red)
-    this.entities.push(gizmo)
-    // this.entities.push(new BoxEntity(400, 200, 50, 50, 'blue'))
+    this.entities.push(new BoxEntity(400, 200, 50, 50, 'blue'))
+    // this.entities.push(gizmo)
     // this.entities.push(new BoxEntity(700, 500, 64, 64, 'green'))
     // Drag state
     this.draggedEntity = null
@@ -164,8 +212,8 @@ export class TestScene extends Scene {
     ctx.drawImage(this.img, 0, 0)
 
     super.render(ctx)
-    for (const gizmo of this.gizmos) {
-      gizmo.render(ctx)
+    for (const entity of this.entities) {
+      entity.render(ctx)
     }
   }
 

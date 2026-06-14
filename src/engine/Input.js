@@ -212,6 +212,14 @@ export class Input {
 }
 
 export class DragController {
+  static EventDrag = class {
+    constructor() {
+      this.worldPoint = { x: null, y: null }
+      this.dragStart = { x: null, y: null }
+      this.collider = null
+    }
+  }
+
   constructor(scene) {
     if (!scene) {
       throw new Error('You Need To have A Scene Inorrder To Uses A Drag Class')
@@ -220,28 +228,28 @@ export class DragController {
     this.camera = camera
     this.entities = entities
     this.gizmos = gizmos
+    this.eventDrag = new DragController.EventDrag()
+
+    ////// TOREMOVE
     // Entity dragging
     this.draggedEntity = null
-
     // Camera dragging
     this.draggingCamera = false
-
     this.dragStart = {
       x: 0,
       y: 0
     }
-
     this.dragOffset = {
       x: 0,
       y: 0
     }
+    /////////
 
     // Camera drag origin
     this.cameraDragStart = {
       x: 0,
       y: 0
     }
-
     this.cameraPointerStart = {
       x: 0,
       y: 0
@@ -251,14 +259,24 @@ export class DragController {
   //TODO: I left off here trying to add Colliders to the project!
   #moveWithCollision(entity, nextX, nextY) {
     const p = { x: nextX, y: nextY }
-    if (entity.collider && !entity.collider.trigger) {
-      const verts = entity.collider.getVerticesAtPoint(p)
-      for (const other of this.entities) {
-        if (other === entity || !other.collider ||other.collider.trigger  ) continue
-        console.log("other", other)
-        for (const v of verts) {
-          if (other.collider.containsPoint(v)) {
-            return null
+    if (entity.colliders) {
+      for (const collider of entity.colliders) {
+        if (!collider.trigger) {
+          continue
+        }
+        const verts = collider.getVerticesAtPoint(p)
+        for (const other of this.entities) {
+          if (other === entity) continue
+          for (const colliderOther of other.colliders) {
+            if (colliderOther.trigger) {
+              // This is where i should do the circleVsCircle,
+              // circleVsPolygon, and polygonVsPolygon check.
+              for (const v of verts) {
+                if (colliderOther.containsPoint(v)) {
+                  return null
+                }
+              }
+            }
           }
         }
       }
@@ -272,23 +290,31 @@ export class DragController {
     // Screen -> World
     const worldX = pointer.x / this.camera.zoom + this.camera.x
     const worldY = pointer.y / this.camera.zoom + this.camera.y
-
     const worldPoint = { x: worldX, y: worldY }
+
     // =========================
     // Start Input
     // =========================
-    if (Input.GetPointerDown()) {
+    if (!this.draggedEntity && Input.GetPointerDown()) {
+      this.eventDrag.worldPoint.x = worldX
+      this.eventDrag.worldPoint.y = worldY
+
       let clickedEntity = null
       // Reverse loop = top-most entity first
       for (let i = this.entities.length - 1; i >= 0; i--) {
         const entity = this.entities[i]
-        const collider = entity.collider
-        if (!collider) continue
-        if (collider.containsPoint(worldPoint)) {
-          if (clickedEntity && clickedEntity.layer > entity.layer) {
-            continue
+        const colliders = entity.colliders
+        if (!colliders) continue
+        for (let collider of colliders) {
+          if (collider.containsPoint(worldPoint)) {
+            if (clickedEntity && clickedEntity.layer > entity.layer) {
+              console.log("test sasda",collider)
+              continue
+            }
+            this.eventDrag.collider = collider
+            clickedEntity = entity
+            console.log("collider sasda",collider)
           }
-          clickedEntity = entity
         }
       }
 
@@ -296,12 +322,10 @@ export class DragController {
       // ENTITY DRAG
       // =========================
       if (clickedEntity) {
+        this.eventDrag.dragStart.x = worldX
+        this.eventDrag.dragStart.y = worldY
         this.draggedEntity = clickedEntity
-        this.dragStart.x = worldX
-        this.dragStart.y = worldY
-        this.dragOffset.x = worldX - clickedEntity.postion.x
-        this.dragOffset.y = worldY - clickedEntity.postion.y
-        // clickedEntity.dragStart();
+        this.draggedEntity.onDragStart(this.eventDrag)
       }
 
       // =========================
@@ -322,16 +346,10 @@ export class DragController {
     // ENTITY DRAGGING
     // =========================
     if (this.draggedEntity && Input.GetPointer()) {
-      const startX = this.dragStart.x
-      const startY = this.dragStart.y
-
-      // Add the dragOffset so that we dont snap the draggedEntity to the mouse drag location
-      const targetX = worldX - this.dragOffset.x
-      const targetY = worldY - this.dragOffset.y
-      
-      const event = this.#moveWithCollision(this.draggedEntity, targetX, targetY)
-
-      this.draggedEntity.onDrag({ startX, startY, worldX, worldY, target: event })
+      this.eventDrag.worldPoint.x = worldX
+      this.eventDrag.worldPoint.y = worldY
+      // const event = this.#moveWithCollision(this.draggedEntity, targetX, targetY)
+      this.draggedEntity.onDrag(this.eventDrag)
     }
 
     // =========================
@@ -358,9 +376,8 @@ export class DragController {
         }
         this.draggedEntity = null
       }
-
-      // Release camera
       this.draggingCamera = false
+      this.eventDrag.collider = null
     }
   }
 }
