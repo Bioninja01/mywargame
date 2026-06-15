@@ -127,7 +127,6 @@ class BoxEntity extends Entity {
     }
   }
   onDragEnd(event) {
-    console.log('This is a dragend')
     this.oldPostion = { ...this.postion }
   }
 
@@ -172,7 +171,6 @@ class BoxEntity extends Entity {
     }
   }
   onDragEnd(event) {
-    console.log('This is a dragend')
     this.oldPostion = { ...this.postion }
   }
 }

@@ -308,12 +308,10 @@ export class DragController {
         for (let collider of colliders) {
           if (collider.containsPoint(worldPoint)) {
             if (clickedEntity && clickedEntity.layer > entity.layer) {
-              console.log("test sasda",collider)
               continue
             }
             this.eventDrag.collider = collider
             clickedEntity = entity
-            console.log("collider sasda",collider)
           }
         }
       }

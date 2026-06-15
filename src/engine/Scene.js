@@ -1,6 +1,8 @@
 import { Camera } from './Camera.js'
 import { DragController, ClickController } from './Input.js'
 
+import { PhysicsSystem } from './Physics.js'
+
 export class Scene {
   constructor() {
     this.entities = []
@@ -9,6 +11,7 @@ export class Scene {
     this.y = 0
     this.dragController = new DragController(this)
     this.clickController = new ClickController(this)
+    this.physics = new PhysicsSystem(this)
   }
 
   addEntity(entity) {
@@ -23,6 +26,7 @@ export class Scene {
       e.update(delta)
     }
     this.dragController.handleDragging()
+    this.physics.update()
     // this.clickController.handleClick()
   }
 

@@ -50,6 +50,7 @@ export class Entity {
     //   this.postion.y = target.y
     // }
   }
+
   onClick(event) {}
 
   OnCollisionStay(other) {
