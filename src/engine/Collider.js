@@ -3,8 +3,8 @@ import { fastCosTaylor, fastSinTaylor, pointInTriangle } from './Utils'
 import { drawTriangle } from './utils/Draw'
 
 export function getOverlapRect(a, b) {
-  const dx = b.entity.postion.x - a.entity.postion.x
-  const dy = b.entity.postion.y - a.entity.postion.y
+  const dx = b.entity.position.x - a.entity.position.x
+  const dy = b.entity.position.y - a.entity.position.y
 
   const overlapX = a.width / 2 + b.width / 2 - Math.abs(dx)
 
@@ -131,27 +131,27 @@ class Collider {
   }
 
   OnCollisionEnter(other) {
-    console.log('A collider has made contact with the DoorObject Collider')
+    // console.log('A collider has made contact with the DoorObject Collider')
   }
 
   onCollision(other) {
-    console.log('A collider is in contact with the DoorObject Collider')
+    // console.log('A collider is in contact with the DoorObject Collider')
   }
 
   OnCollisionExit(other) {
-    console.log('A collider has ceased contact with the DoorObject Collider')
+    // console.log('A collider has ceased contact with the DoorObject Collider')
   }
 
   OnTriggerEnter(other) {
-     console.log('A collider has entered the DoorObject trigger')
+    //  console.log('A collider has entered the DoorObject trigger')
   }
 
   onTrigger(other) {
-     console.log('A collider is inside the DoorObject trigger')
+    //  console.log('A collider is inside the DoorObject trigger')
   }
 
   OnTriggerExit(other) {
-     console.log('A collider has exited the DoorObject trigger')
+    //  console.log('A collider has exited the DoorObject trigger')
   }
 }
 
@@ -161,7 +161,7 @@ export class BoxCollider extends Collider {
     this.width = width
     this.height = height
   }
-  getVerticesAtPoint(p = this.entity.postion) {
+  getVerticesAtPoint(p = this.entity.position) {
     const { x, y } = { ...p }
     const halfWidth = this.width / 2
     const halfHeight = this.height / 2
@@ -175,7 +175,7 @@ export class BoxCollider extends Collider {
     return getVerticesAtPoint()
   }
   containsPoint(p) {
-    const { x, y } = { ...this.entity.postion }
+    const { x, y } = { ...this.entity.position }
     return (
       p.x >= x - this.width / 2 &&
       p.x <= x + this.width / 2 &&
@@ -186,7 +186,7 @@ export class BoxCollider extends Collider {
   render(ctx) {
     ctx.save()
     // Move origin to entity center
-    ctx.translate(this.entity.postion.x, this.entity.postion.y)
+    ctx.translate(this.entity.position.x, this.entity.position.y)
     // Rotate around center
     ctx.rotate(this.entity.angle)
     // Draw rectangle centered
@@ -214,14 +214,14 @@ export class CircleCollider extends Collider {
     this.radius = radius
   }
   containsPoint(p) {
-    const { x, y } = { ...this.entity.postion }
+    const { x, y } = { ...this.entity.position }
     const dx = p.x - x
     const dy = p.y - y
     const squaredDistance = dx * dx + dy * dy
     const squaredRadius = this.radius * this.radius
     return squaredDistance <= squaredRadius
   }
-  getVerticesAtPoint(p = this.entity.postion) {
+  getVerticesAtPoint(p = this.entity.position) {
     const verts = []
     const { x, y } = { ...p }
     ANGLES.map((angle) => {
@@ -236,7 +236,7 @@ export class CircleCollider extends Collider {
   render(ctx) {
     ctx.save()
     // Move origin to entity center
-    ctx.translate(this.entity.postion.x, this.entity.postion.y)
+    ctx.translate(this.entity.position.x, this.entity.position.y)
 
     ctx.beginPath()
     ctx.arc(0, 0, this.radius, 0, 2 * Math.PI)
@@ -253,7 +253,7 @@ export class TriangleCollider extends Collider {
     this.localVertices = [p1, p2, p3]
   }
   getVertices() {
-    const { x, y } = { ...this.entity.postion }
+    const { x, y } = { ...this.entity.position }
     return this.localVertices.map((v) => ({
       x: v.x + x,
       y: v.y + y
@@ -269,8 +269,8 @@ export class TriangleCollider extends Collider {
     drawTriangle(
       ctx,
       this.entity.angle,
-      this.entity.postion.x,
-      this.entity.postion.y,
+      this.entity.position.x,
+      this.entity.position.y,
       0,
       0,
       170,

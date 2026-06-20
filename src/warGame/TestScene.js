@@ -24,9 +24,9 @@ class BoxEntity extends Entity {
     const c = new CircleCollider(this, this.radius)
     c.trigger = true
     const b = new BoxCollider(this, width, height)
-    const p2 = { x: this.postion.x + 40, y: this.postion.y + 40 }
+    const p2 = { x: this.position.x + 40, y: this.position.y + 40 }
     const p3 = { x: p2.x + 250, y: p2.y + 250 }
-    const t = new TriangleCollider(this, this.postion, p2, p3)
+    const t = new TriangleCollider(this, this.position, p2, p3)
     this.colliders = [c, b, t]
     this.dragOffset = {
       x: 0,
@@ -37,26 +37,26 @@ class BoxEntity extends Entity {
   render(ctx) {
     super.render(ctx)
     ctx.beginPath()
-    ctx.arc(this.oldPostion.x, this.oldPostion.y, this.radius, 0, 2 * Math.PI)
+    ctx.arc(this.oldPosition.x, this.oldPosition.y, this.radius, 0, 2 * Math.PI)
     ctx.strokeStyle = 'lightblue'
     ctx.stroke() // Draw the outlin
 
     // const p2 = { x: this.x + 40, y: this.y + 40 }
     // const p3 = { x: p2.x + 250, y: p2.y + 250 }
-    // drawTriangle(ctx, this.angle, this.postion.x, this.postion.y, 0, 0, 170, 170, 170, -170)
+    // drawTriangle(ctx, this.angle, this.position.x, this.position.y, 0, 0, 170, 170, 170, -170)
 
     // Draw image centered
     if (this.img.complete) {
       ctx.save()
       // Move origin to entity center
-      ctx.translate(this.postion.x, this.postion.y)
+      ctx.translate(this.position.x, this.position.y)
 
       if (0 > this.angle && this.angle > -1) {
         ctx.scale(-1, 1)
         ctx.drawImage(this.img, 0, 180 * 3, 100, 180, -50, -90 - 45, 100, 180)
         ctx.restore()
         ctx.save()
-        ctx.translate(this.postion.x, this.postion.y)
+        ctx.translate(this.position.x, this.position.y)
       } else if (-1 > this.angle && this.angle > -2) {
         ctx.drawImage(this.img, 100, 0, 100, 180, -50, -90 - 45, 100, 180)
       } else if (-2 > this.angle && this.angle > -2.5) {
@@ -75,13 +75,13 @@ class BoxEntity extends Entity {
         ctx.drawImage(this.img, 0, 180 * 2, 100, 180, -50, -90 - 45, 100, 180)
         ctx.restore()
         ctx.save()
-        ctx.translate(this.postion.x, this.postion.y)
+        ctx.translate(this.position.x, this.position.y)
       } else if (0.5 > this.angle && this.angle > -0.5) {
         ctx.scale(-1, 1)
         ctx.drawImage(this.img, 0, 180, 100, 180, -50, -90 - 45, 100, 180)
         ctx.restore()
         ctx.save()
-        ctx.translate(this.postion.x, this.postion.y)
+        ctx.translate(this.position.x, this.position.y)
       }
       ctx.font = '30px Arial'
       ctx.fillStyle = 'white'
@@ -96,7 +96,7 @@ class BoxEntity extends Entity {
     const { dragStart, worldPoint, collider } = { ...event }
     switch (collider) {
       case this.colliders[0]: {
-        const angle = getAngle(this.postion.x, this.postion.y, worldPoint.x, worldPoint.y)
+        const angle = getAngle(this.position.x, this.position.y, worldPoint.x, worldPoint.y)
         this.angle = angle
         break
       }
@@ -116,31 +116,31 @@ class BoxEntity extends Entity {
             target.y,
             this.radius
           )
-          this.postion.x = newPoint.x
-          this.postion.y = newPoint.y
+          this.position.x = newPoint.x
+          this.position.y = newPoint.y
         } else {
-          this.postion.x = target.x
-          this.postion.y = target.y
+          this.position.x = target.x
+          this.position.y = target.y
         }
         break
       }
     }
   }
   onDragEnd(event) {
-    this.oldPostion = { ...this.postion }
+    this.oldPosition = { ...this.position }
   }
 
   onDragStart(event) {
     this.dragOffset = {
-      x: event.worldPoint.x - this.postion.x,
-      y: event.worldPoint.y - this.postion.y
+      x: event.worldPoint.x - this.position.x,
+      y: event.worldPoint.y - this.position.y
     }
   }
   onDrag(event) {
     const { dragStart, worldPoint, collider } = { ...event }
     switch (collider) {
       case this.colliders[0]: {
-        const angle = getAngle(this.postion.x, this.postion.y, worldPoint.x, worldPoint.y)
+        const angle = getAngle(this.position.x, this.position.y, worldPoint.x, worldPoint.y)
         this.angle = angle
         break
       }
@@ -160,18 +160,18 @@ class BoxEntity extends Entity {
             target.y,
             this.radius
           )
-          this.postion.x = newPoint.x
-          this.postion.y = newPoint.y
+          this.position.x = newPoint.x
+          this.position.y = newPoint.y
         } else {
-          this.postion.x = target.x
-          this.postion.y = target.y
+          this.position.x = target.x
+          this.position.y = target.y
         }
         break
       }
     }
   }
   onDragEnd(event) {
-    this.oldPostion = { ...this.postion }
+    this.oldPosition = { ...this.position }
   }
 }
 

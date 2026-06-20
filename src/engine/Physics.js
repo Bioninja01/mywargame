@@ -4,6 +4,7 @@ export class PhysicsSystem {
   constructor(scene) {
     const { entities } = { ...scene }
     this.entities = entities
+    this.set = new Set()
   }
 
   update() {
@@ -20,6 +21,7 @@ export class PhysicsSystem {
             const point = this.intersects(colliderA, colliderB)
             if (!point) continue
 
+            this.set.add(colliderA)
             // // Trigger?
             // if (a.collider.isTrigger || b.collider.isTrigger) {
             //   a.onTrigger(b)
@@ -34,6 +36,11 @@ export class PhysicsSystem {
         }
       }
     }
+    for(let collider of this.set){
+      collider.onCollision("")
+      collider.entity.revertPosition()
+    }
+    this.set.clear()
   }
 
   intersects(a, b) {

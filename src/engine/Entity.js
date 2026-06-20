@@ -11,11 +11,11 @@ export class Entity {
     this.childern = []
     this.colliders = []
     this.radius = radius
-    this.postion = {
+    this.position = {
       x,
       y
     }
-    this.oldPostion = {
+    this.oldPosition = {
       x,
       y
     }
@@ -29,9 +29,16 @@ export class Entity {
       collider.render(ctx)
     }
   }
-  saveOldPostion() {
-    this.oldPostion.x = this.postion.x
-    this.oldPostion.y = this.postion.y
+  saveOldposition() {
+    this.oldPosition.x = this.position.x
+    this.oldPosition.y = this.position.y
+  }
+  revertPosition() {
+
+    console.log("this.color", this.color)
+
+    this.position.x = this.oldPosition.x
+    this.position.y = this.oldPosition.y
   }
 
   onDragStart(event) {}
@@ -43,11 +50,11 @@ export class Entity {
     // // Clamp movement radius
     // if (distSq > radiusSq) {
     //   const newPoint = getPointAtDistance(startX, startY, target.x, target.y, this.radius)
-    //   this.postion.x = newPoint.x
-    //   this.postion.y = newPoint.y
+    //   this.position.x = newPoint.x
+    //   this.position.y = newPoint.y
     // } else {
-    //   this.postion.x = target.x
-    //   this.postion.y = target.y
+    //   this.position.x = target.x
+    //   this.position.y = target.y
     // }
   }
 

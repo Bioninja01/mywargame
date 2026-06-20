@@ -344,6 +344,7 @@ export class DragController {
     // ENTITY DRAGGING
     // =========================
     if (this.draggedEntity && Input.GetPointer()) {
+      this.draggedEntity.saveOldposition()
       this.eventDrag.worldPoint.x = worldX
       this.eventDrag.worldPoint.y = worldY
       // const event = this.#moveWithCollision(this.draggedEntity, targetX, targetY)
@@ -368,7 +369,7 @@ export class DragController {
     if (Input.GetPointerUp()) {
       // Release entity
       if (this.draggedEntity) {
-        // this.draggedEntity.saveOldPostion()
+        // this.draggedEntity.saveOldposition()
         if (this.draggedEntity.onDragEnd) {
           this.draggedEntity.onDragEnd()
         }
